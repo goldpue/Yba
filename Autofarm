@@ -4,10 +4,12 @@ local Char = Local.Character
 local Back = Local.Backpack
 local Gui = Local.PlayerGui
 local RemoteEvent = Char.RemoteEvent
+local Mag;
+local Hook;
 repeat task.wait() until Char:FindFirstChild("RemoteEvent") and Char:FindFirstChild("RemoteFunction")
 Char:FindFirstChild("RemoteEvent"):FireServer("PressedPlay")
 local Notify = loadstring(game:HttpGet("https://raw.githubusercontent.com/IceMinisterq/Notification-Library/Main/Library.lua"))()
-for _, __ in ipairs({"LoadingScreen1", "LoadingScreen"}) do
+for _,__ in ipairs({"LoadingScreen1", "LoadingScreen"}) do
     if Gui:FindFirstChild(__) then
         Gui:FindFirstChild(__):Destroy()
     end
@@ -25,13 +27,11 @@ end
 
 workspace.Map.IMPORTANT.OceanFloor.OceanFloor_Sand_6.Size = Vector3.new(2048, 89, 2048)
 workspace.Map.IMPORTANT.OceanFloor.OceanFloor_Sand_4.Size = Vector3.new(2048, 89, 2048)
+
 local Data = {
     ["data"] = {
         ["Time"] = tick(),
         ["Money"] = Local.PlayerStats.Money.Value,
-    },
-    ["Connection"] = {
-        ["Hook"] = nil,
     },
     ["Cache"] = {
         ["Position"] = {},
@@ -74,32 +74,31 @@ local SendWebhook = function(msg)
     req(reqbody)
 end
 
-Data["Connection"]["Hook"] = hookfunction(getrawmetatable(Char.HumanoidRootPart.Position).__index, function(p,i)
+Mag = hookfunction(getrawmetatable(game.Players.LocalPlayer.Character.HumanoidRootPart.Position).__index, function(p,i)
     if getcallingscript().Name == "ItemSpawn" and i:lower() == "magnitude" then
         return 0
     end
-    return Data["Connection"]["Hook"](p,i)
+    return Mag(p,i)
 end)
 
-Data["Connection"]["Hook"] = hookmetamethod(game, '__namecall', newcclosure(function(self,...)
+Hook = hookmetamethod(game, '__namecall', newcclosure(function(self, ...)
     local args = {...}
-    local namecallmethod = getnamecallmethod()
-
-    if namecallmethod == "InvokeServer" then
+    if getnamecallmethod() == "InvokeServer" then
         if args[1] == "idklolbrah2de" then
             return "  ___XP DE KEY"
         end
     end
 
-    return Data["Connection"]["Hook"](self,...)
+    return Hook(self, ...)
 end))
+
 Notify:SendNotification("Success", "Bypassed Hook", 1)
 SendWebhook("Loading - Auto Money Farm {By Seth}\nCurrent Money: `"..math.floor(Data["data"]["Money"]).."`\nTime Since Start: `" .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes`")
 local PlaceID = game.PlaceId
 local AllIDs = {}
 local foundAnything = ""
 local actualHour = os.date("!*t").hour
-local function TPReturner()
+local TPReturner = function()
     local Site;
     if foundAnything == "" then
        Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=' .. getgenv().Sort .. '&limit=100'))
@@ -147,7 +146,7 @@ local function TPReturner()
     end
  end
 
-local function Teleport()
+local Teleport = function()
    SendWebhook("Time: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nCurrent Money: " .. math.floor(Data["data"]["Money"]))
    while task.wait() do
       pcall(function()
@@ -167,7 +166,7 @@ local function Teleport()
    end
 end
 
-local function findItem(_)
+local find = function(_)
     for _,__ in pairs(game:GetService("Workspace")["Item_Spawns"].Items:GetChildren()) do
         if __:FindFirstChild("MeshPart") and __.ProximityPrompt.ObjectText == _ then
             if __.ProximityPrompt.MaxActivationDistance == 8 then
@@ -182,7 +181,7 @@ local function findItem(_)
     return Data["Cache"]
 end
 
-local function countItems(_)
+local count = function(_)
     for _,__ in pairs(Back:GetChildren()) do
         if __.Name == _ then
             Data["Value"]["Collect"] += 1;
@@ -192,7 +191,7 @@ local function countItems(_)
     return Data["Value"]["Collect"]
 end
 
-local function getitem(_,__)
+local get = function(_,__)
     Back.ChildAdded:Connect(function()
         Data["Booleans"]["GotItem"] = true
     end)
@@ -242,24 +241,24 @@ local function getitem(_,__)
     end
 end
 
-local function farmItem(_,__)
-    local items = findItem(_)
-    local amount = countItems(_) == __
+local farm = function(_,__)
+    local items = find(_)
+    local amount = count(_) == __
 
     for ___, _ in pairs(items["Position"]) do
-        if countItems(_) == __ or amount then
+        if count(_) == __ or amount then
             break
         else
-            getitem(items,___)
+            get(items,___)
         end
     end
     
     return true
 end
 
-local function Start(_,__)
-    if countItems(_) <= __ then
-        farmItem(_,__)
+local Start = function(_,__)
+    if count(_) <= __ then
+        farm(_,__)
         Char.Humanoid:EquipTool(Back:FindFirstChild(_))
         RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
     end
