@@ -165,7 +165,7 @@ local Farm = function(bod)
         if not Data["Cache"]["CFrame"] then return end
 
         for _, v in pairs(Char:GetDescendants()) do
-            if v:IsA("BasePart") and v:IsA("UnionOperation") then
+            if v:IsA("BasePart") then
                 v.CanCollide = false
             end
         end
