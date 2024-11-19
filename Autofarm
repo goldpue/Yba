@@ -25,11 +25,10 @@ end
 
 workspace.Map.IMPORTANT.OceanFloor.OceanFloor_Sand_6.Size = Vector3.new(2048, 89, 2048)
 workspace.Map.IMPORTANT.OceanFloor.OceanFloor_Sand_4.Size = Vector3.new(2048, 89, 2048)
-local start = tick()
 local Data = {
     ["data"] = {
         ["Time"] = tick(),
-        ["Money"] = Local.PlayerStats.Money.Value,
+        ["Money"] = math.floor(LocalPlayer.PlayerStats.Money.Value),
     },
     ["Connection"] = {
         ["Hook"] = nil,
@@ -75,7 +74,6 @@ local SendWebhook = function(msg)
     req(reqbody)
 end
 
-local elapse = tick() - start
 Data["Connection"]["Hook"] = hookfunction(getrawmetatable(Char.HumanoidRootPart.Position).__index, function(p,i)
     if getcallingscript().Name == "ItemSpawn" and i:lower() == "magnitude" then
         return 0
@@ -95,7 +93,8 @@ Data["Connection"]["Hook"] = hookmetamethod(game, '__namecall', newcclosure(func
 
     return Data["Connection"]["Hook"](self,...)
 end))
-Notify:SendNotification("Success", "Bypassed Hook in " .. elapse .. " seconds", 1)
+Notify:SendNotification("Success", "Bypassed Hook", 1)
+SendWebhook("Loading - Auto Money Farm {By Seth}\nCurrent Money: `"..Data["data"]["Money"].."`\nTime Since Start: `" .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes`")
 local PlaceID = game.PlaceId
 local AllIDs = {}
 local foundAnything = ""
@@ -149,6 +148,7 @@ local function TPReturner()
  end
 
 local function Teleport()
+    SendWebhook("Time: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nCurrent Money: " .. Data["data"]["Money"])
    while task.wait() do
       pcall(function()
        if getgenv().Lessping then
@@ -275,10 +275,4 @@ Start("Quinton's Glove", 10)
 Start("Pure Rokakaka", 10)
 Start("Ribcage Of The Saint's Corpse", 10)
 Start("Ancient Scroll", 10)
-SendWebhook("Time: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nCurrent Money: " .. Data["data"]["Money"])
 Teleport()
-
-task.spawn(function()
-SendWebhook("Loading - Auto Money Farm {By Seth}\nCurrent Money: `"..Data["data"]["Money"].."`\nTime Since Start: `" .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes`")
-task.wait(1)
-end)
