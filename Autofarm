@@ -1,0 +1,294 @@
+local Player = game:GetService("Players")
+local Local = Player.LocalPlayer
+local Char = Local.Character
+local Back = Local.Backpack
+local Gui = Local.PlayerGui
+local RemoteEvent = Char.RemoteEvent
+repeat task.wait() until Char:FindFirstChild("RemoteEvent") and Char:FindFirstChild("RemoteFunction")
+Char:FindFirstChild("RemoteEvent"):FireServer("PressedPlay")
+local Notify = loadstring(game:HttpGet("https://raw.githubusercontent.com/IceMinisterq/Notification-Library/Main/Library.lua"))()
+for _, __ in ipairs({"LoadingScreen1", "LoadingScreen"}) do
+    if Gui:FindFirstChild(__) then
+        Gui:FindFirstChild(__):Destroy()
+    end
+end
+
+task.spawn(function()
+    if game.Lighting:WaitForChild("DepthOfField", 10) then
+        game.Lighting.DepthOfField:Destroy()
+    end
+end)
+
+if not Gui:FindFirstChild("HUD") then
+    game:GetService("ReplicatedStorage").Objects.HUD:Clone().Parent = Gui
+end
+
+workspace.Map.IMPORTANT.OceanFloor.OceanFloor_Sand_6.Size = Vector3.new(2048, 89, 2048)
+workspace.Map.IMPORTANT.OceanFloor.OceanFloor_Sand_4.Size = Vector3.new(2048, 89, 2048)
+local start = tick()
+local Data = {
+    ["data"] = {
+        ["Time"] = tick(),
+        ["Money"] = Gui.HUD.Main.DropMoney.Money.Value,
+    },
+    ["Connection"] = {
+        ["Hook"] = nil,
+    },
+    ["Cache"] = {
+        ["Position"] = {},
+        ["ProximityPrompt"] = {},
+        ["Items"] = {},
+    },
+    ["Value"] = {
+        ["Collect"] = 0,
+        ["When?"] = 10,
+    },
+    ["Booleans"] = {
+        ["HasItem"] = false,
+    },
+    ["Env"] = {
+        ["Timeout"] = getgenv().WaitTilCollect + 5
+    }
+}
+
+local SendWebhook = function(msg)
+    local url = getgenv().Webhook
+    local data = {
+        embeds = {
+            {
+                title = "Testing Webhook {Seth}",
+                description = msg,
+                type = "rich",
+                color = 0x7269ff
+            }
+        }
+    }
+    local body = game:GetService("HttpService"):JSONEncode(data)
+    local headers = {["Content-Type"] = "application/json"}
+    local req = http_request or request or HttpPost or syn.request or http.request
+    local reqbody = {
+        Url = url,
+        Body = body,
+        Method = "POST",
+        Headers = headers
+    }
+    req(reqbody)
+end
+
+--[[
+Notify:SendNotification("Success", "I'm a cool message", 3)
+
+Notify:SendNotification("Warning", "I'm a cool message", 3)
+
+Notify:SendNotification("Error", "I'm a cool message", 3)
+
+Notify:SendNotification("Info", "I'm a cool message", 3)
+]]
+
+local elapse = tick() - start
+Data["Connection"]["Hook"] = hookfunction(getrawmetatable(Char.HumanoidRootPart.Position).__index, function(p,i)
+    if getcallingscript().Name == "ItemSpawn" and i:lower() == "magnitude" then
+        return 0
+    end
+    return Data["Connection"]["Hook"](p,i)
+end)
+
+Data["Connection"]["Hook"] = hookmetamethod(game, '__namecall', newcclosure(function(self,...)
+    local args = {...}
+    local namecallmethod = getnamecallmethod()
+
+    if namecallmethod == "InvokeServer" then
+        if args[1] == "idklolbrah2de" then
+            return "  ___XP DE KEY"
+        end
+    end
+
+    return Data["Connection"]["Hook"](self,...)
+end))
+Notify:SendNotification("Success", "Bypassed Hook in " .. elapse .. " seconds", 1)
+local PlaceID = game.PlaceId
+local AllIDs = {}
+local foundAnything = ""
+local actualHour = os.date("!*t").hour
+local function TPReturner()
+    local Site;
+    if foundAnything == "" then
+       Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=' .. getgenv().Sort .. '&limit=100'))
+    else
+       Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=' .. getgenv().Sort .. '&limit=100&cursor=' .. foundAnything))
+    end
+
+    local ID = ""
+    if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+       foundAnything = Site.nextPageCursor
+    end
+
+    local num = 0;
+    for _,v in pairs(Site.data) do
+       local Possible = true
+       ID = tostring(v.id)
+       if tonumber(v.maxPlayers) > tonumber(v.playing) then
+          for _,Existing in pairs(AllIDs) do
+             if num ~= 0 then
+                if ID == tostring(Existing) then
+                   Possible = false
+                end
+             else
+                if tonumber(actualHour) ~= tonumber(Existing) then
+                   local delFile = pcall(function()
+                   delfile("Blocker.json")
+                   AllIDs = {}
+                   table.insert(AllIDs, actualHour)
+                   end)
+                end
+             end
+             num = num + 1
+          end
+          if Possible == true then
+             table.insert(AllIDs, ID)
+             task.wait()
+             pcall(function()
+                writefile("Blocker.json", game:GetService('HttpService'):JSONEncode(AllIDs))
+                task.wait()
+                game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+             end)
+             task.wait(4)
+          end
+       end
+    end
+ end
+
+local function Teleport()
+   while task.wait() do
+      pcall(function()
+       if getgenv().Lessping then
+        game:GetService("TeleportService"):Teleport(2809202155, game:GetService("Players").LocalPlayer)
+        
+        game:GetService("TeleportService").TeleportInitFailed:Connect(function()
+            game:GetService("TeleportService"):Teleport(2809202155, game:GetService("Players").LocalPlayer)
+        end)
+           repeat task.wait() until game.JobId ~= game.JobId
+       end
+      TPReturner()
+      if foundAnything ~= "" then
+         TPReturner()
+      end
+      end)
+   end
+end
+
+local function findItem(_)
+    for _,__ in pairs(game:GetService("Workspace")["Item_Spawns"].Items:GetChildren()) do
+        if __:FindFirstChild("MeshPart") and __.ProximityPrompt.ObjectText == _ then
+            if __.ProximityPrompt.MaxActivationDistance == 8 then
+                table.insert(Data["Cache"]["Items"], __.ProximityPrompt.ObjectText)
+                table.insert(Data["Cache"]["PriximityPrompt"], __.ProximityPrompt)
+                table.insert(Data["Cache"]["Position"], __.MeshPart.CFrame)
+            else
+                Notify:SendNotification("Info", "I love kids", 1)
+            end
+        end
+    end
+    return Data["Cache"]
+end
+
+local function countItems(_)
+    for _,__ in pairs(Back:GetChildren()) do
+        if __.Name == _ then
+            Data["Value"]["Collect"] += 1;
+        end
+    end
+
+    return Data["Value"]["Collect"]
+end
+
+local function getitem(_,__)
+    Back.ChildAdded:Connect(function()
+        Data["Booleans"]["GotItem"] = true
+    end)
+    
+    task.spawn(function()
+        while not Data["Booleans"]["GotItem"] do
+            task.wait()
+            Char.HumanoidRootPart.CFrame = _["Position"][__] * CFrame.Angles(math.pi*0.5,0,0) - Vector3.new(0,10,0)
+        end
+    end)
+
+    task.wait(getgenv().WaitTilCollect)
+
+    task.spawn(function()
+        fireproximityprompt(_["ProximityPrompt"][__])
+        local screen = Gui:WaitForChild("ScreenGui",5)
+        if not screen then return end
+        for vv,vvv in pairs(screen:WaitForChild("Part"):GetDescendants()) do
+            if vvv:FindFirstChild("Part") then
+                if vvv:IsA("ImageButton") and vvv:WaitForChild("Part").TextColor3 == Color3.new(0,1,0) then
+                    repeat
+                        firesignal(vvv.MouseEnter)
+                        firesignal(vvv.MouseButton1Up)
+                        firesignal(vvv.MouseButton1Click)
+                        firesignal(vvv.Activated)
+                        task.wait()
+                    until not Gui:FindFirstChild("ScreenGui")
+                end
+            end
+        end
+    end)
+    
+    task.spawn(function()
+        for i=Data["Env"]["Timeout"], 1, -1 do
+            task.wait(1)
+        end
+
+        if not Data["Booleans"]["GotItem"] then
+            Data["Booleans"]["GotItem"] = true
+            return
+        end
+    end)
+
+
+    while not Data["Booleans"]["GotItem"] do
+        task.wait()
+    end
+end
+
+local function farmItem(_,__)
+    local items = findItem(_)
+    local amount = countItems(_) == __
+
+    for ___, _ in pairs(items["Position"]) do
+        if countItems(_) == __ or amount then
+            break
+        else
+            getitem(items,___)
+        end
+    end
+    
+    return true
+end
+
+local function Start(_,__)
+    if countItems(_) <= __ then
+        farmItem(_,__)
+        Char.Humanoid:EquipTool(Back:FindFirstChild(_))
+        RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
+    end
+end
+
+Data["Value"]["When?"]
+
+Start("Mysterious Arrow", 25)
+Start("Rokakaka", 25)
+Start("Diamond", 10)
+Start("Steel Ball", 10)
+Start("Quinton's Glove", 10)
+Start("Pure Rokakaka", 10)
+Start("Ribcage Of The Saint's Corpse", 10)
+Start("Ancient Scroll", 10)
+SendWebhook("Time: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nCurrent Money: " .. Data["data"]["Money"])
+Teleport()
+
+task.spawn(function()
+SendWebhook("Loading - Auto Money Farm {By Seth}\nCurrent Money: `"..Data["data"]["Money"].."`\nTime Since Start: `" .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes`")
+task.wait(1)
+end)
