@@ -171,7 +171,7 @@ local find = function(_)
         if __:FindFirstChild("MeshPart") and __.ProximityPrompt.ObjectText == _ then
             if __.ProximityPrompt.MaxActivationDistance == 8 then
                 table.insert(Data["Cache"]["Items"], __.ProximityPrompt.ObjectText)
-                table.insert(Data["Cache"]["PriximityPrompt"], __.ProximityPrompt)
+                table.insert(Data["Cache"]["ProximityPrompt"], __.ProximityPrompt)
                 table.insert(Data["Cache"]["Position"], __.MeshPart.CFrame)
             else
                 Notify:SendNotification("Info", "I love kids", 1)
