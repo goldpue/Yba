@@ -29,7 +29,7 @@ local start = tick()
 local Data = {
     ["data"] = {
         ["Time"] = tick(),
-        ["Money"] = Gui.HUD.Main.DropMoney.Money.Value,
+        ["Money"] = Local.PlayerStats.Money.Value,
     },
     ["Connection"] = {
         ["Hook"] = nil,
@@ -74,16 +74,6 @@ local SendWebhook = function(msg)
     }
     req(reqbody)
 end
-
---[[
-Notify:SendNotification("Success", "I'm a cool message", 3)
-
-Notify:SendNotification("Warning", "I'm a cool message", 3)
-
-Notify:SendNotification("Error", "I'm a cool message", 3)
-
-Notify:SendNotification("Info", "I'm a cool message", 3)
-]]
 
 local elapse = tick() - start
 Data["Connection"]["Hook"] = hookfunction(getrawmetatable(Char.HumanoidRootPart.Position).__index, function(p,i)
@@ -275,7 +265,7 @@ local function Start(_,__)
     end
 end
 
-Data["Value"]["When?"]
+task.wait(Data["Value"]["When?"])
 
 Start("Mysterious Arrow", 25)
 Start("Rokakaka", 25)
