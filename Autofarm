@@ -1,17 +1,3 @@
-if game.PlaceId ~= 2809202155 then
-    local Folder = Instance.new("Folder", workspace)
-    Folder.Name = "Item_Spawns"
-    local Folder2 = Instance.new("Folder", Folder)
-    Folder2.Name = "Items"
-end
-
-local MapFolder = Instance.new("Folder", workspace)
-for _,zz in workspace.Map:GetChildren() do
-    task.spawn(function()
-        zz.Parent = MapFolder
-    end)
-end
-
 local Player = game:GetService("Players")
 local Local = Player.LocalPlayer
 local Char = Local.Character
