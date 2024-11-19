@@ -3,6 +3,7 @@ local Local = Player.LocalPlayer
 local Char = Local.Character
 local Back = Local.Backpack
 local Gui = Local.PlayerGui
+local HumanoidRootPart = Char:FindFirstChild("HumanoidRootPart")
 local RemoteEvent = Char.RemoteEvent
 local Mag;
 local Hook;
@@ -27,26 +28,18 @@ end
 
 workspace.Map.IMPORTANT.OceanFloor.OceanFloor_Sand_6.Size = Vector3.new(2048, 89, 2048)
 workspace.Map.IMPORTANT.OceanFloor.OceanFloor_Sand_4.Size = Vector3.new(2048, 89, 2048)
-
 local Data = {
     ["data"] = {
         ["Time"] = tick(),
         ["Money"] = Local.PlayerStats.Money.Value,
     },
     ["Cache"] = {
-        ["Position"] = {},
-        ["ProximityPrompt"] = {},
-        ["Items"] = {},
+        ["CFrame"] = nil,
+        ["Loop"] = nil,
+        ["Name"] = nil,
     },
     ["Value"] = {
-        ["Collect"] = 0,
-        ["When?"] = 10,
-    },
-    ["Booleans"] = {
-        ["HasItem"] = false,
-    },
-    ["Env"] = {
-        ["Timeout"] = getgenv().WaitTilCollect + 5
+        ["Count"] = 0
     }
 }
 
@@ -74,7 +67,7 @@ local SendWebhook = function(msg)
     req(reqbody)
 end
 
-Mag = hookfunction(getrawmetatable(game.Players.LocalPlayer.Character.HumanoidRootPart.Position).__index, function(p,i)
+Mag = hookfunction(getrawmetatable(HumanoidRootPart.Position).__index, function(p,i)
     if getcallingscript().Name == "ItemSpawn" and i:lower() == "magnitude" then
         return 0
     end
@@ -94,6 +87,7 @@ end))
 
 Notify:SendNotification("Success", "Bypassed Hook", 1)
 SendWebhook("Loading - Auto Money Farm {By Seth}\nCurrent Money: `"..math.floor(Data["data"]["Money"]).."`\nTime Since Start: `" .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes`")
+
 local PlaceID = game.PlaceId
 local AllIDs = {}
 local foundAnything = ""
@@ -138,7 +132,7 @@ local TPReturner = function()
              pcall(function()
                 writefile("Blocker.json", game:GetService('HttpService'):JSONEncode(AllIDs))
                 task.wait()
-                game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+                game:GetService("TeleportService"):FarmInstance(PlaceID, ID, game.Players.LocalPlayer)
              end)
              task.wait(4)
           end
@@ -166,123 +160,138 @@ local Teleport = function()
    end
 end
 
-local find = function(_)
-    for ___,__ in pairs(game:GetService("Workspace")["Item_Spawns"].Items:GetChildren()) do
-        if __:FindFirstChild("MeshPart") and __.ProximityPrompt.ObjectText == _ then
-            if __.ProximityPrompt.MaxActivationDistance == 8 then
-                table.insert(Data["Cache"]["Items"], __.ProximityPrompt.ObjectText)
-                table.insert(Data["Cache"]["ProximityPrompt"], __.ProximityPrompt)
-                table.insert(Data["Cache"]["Position"], __.MeshPart.CFrame)
-            else
-                Notify:SendNotification("Info", "I love kids", 1)
+local Farm = function(bod)
+    Data["Cache"]["Loop"] = game:GetService("RunService").Heartbeat:Connect(function()
+        if not Data["Cache"]["CFrame"] then return end
+
+        for _, v in pairs(Char:GetDescendants()) do
+            if v:IsA("BasePart") and v.CanCollide then
+                v.CanCollide = false
             end
         end
+
+        HumanoidRootPart.CFrame = Data["Cache"]["CFrame"]
+    end)
+
+    while (bod.Position - HumanoidRootPart.Position).Magnitude > getgenv().MaxTeleportDistance do
+        HumanoidRootPart.Position = HumanoidRootPart.Position + (bod.Position - HumanoidRootPart.Position).Unit * getgenv().MaxTeleportDistance
+        Data["Cache"]["CFrame"] = CFrame.new(HumanoidRootPart.Position)
+        task.wait(10 / (getgenv().TeleportSpeed * 10))
     end
-    return Data["Cache"]
+
+    Data["Cache"]["CFrame"] = bod
+    task.wait()
+
+    Data["Cache"]["Loop"]:Disconnect()
+    task.wait()
 end
 
-local count = function(_)
-    for ___,__ in pairs(Back:GetChildren()) do
-        if __.Name == _ then
-            Data["Value"]["Collect"] += 1;
-        end
-    end
+local BackpackLoaded = function()
+    local newtick = tick()
+    local oldval = #Back:GetChildren()
 
-    return Data["Value"]["Collect"]
-end
-
-local get = function(_,__)
-    Back.ChildAdded:Connect(function()
-        Data["Booleans"]["GotItem"] = true
-    end)
-    
-    task.spawn(function()
-        while not Data["Booleans"]["GotItem"] do
-            task.wait()
-            Char.HumanoidRootPart.CFrame = _["Position"][__] - Vector3.new(0,10,0)
-        end
-    end)
-
-    task.wait(Data["Env"]["Timeout"])
-
-    task.spawn(function()
-        fireproximityprompt(_["ProximityPrompt"][__])
-        local screen = Gui:WaitForChild("ScreenGui",5)
-        if not screen then return end
-        for vv,vvv in pairs(screen:WaitForChild("Part"):GetDescendants()) do
-            if vvv:FindFirstChild("Part") then
-                if vvv:IsA("ImageButton") and vvv:WaitForChild("Part").TextColor3 == Color3.new(0,1,0) then
-                    repeat
-                        firesignal(vvv.MouseEnter)
-                        firesignal(vvv.MouseButton1Up)
-                        firesignal(vvv.MouseButton1Click)
-                        firesignal(vvv.Activated)
-                        task.wait()
-                    until not Gui:FindFirstChild("ScreenGui")
-                end
-            end
-        end
-    end)
-    
-    task.spawn(function()
-        for i=Data["Env"]["Timeout"], 1, -1 do
-            task.wait(1)
-        end
-
-        if not Data["Booleans"]["GotItem"] then
-            Data["Booleans"]["GotItem"] = true
-            return
-        end
-    end)
-
-
-    while not Data["Booleans"]["GotItem"] do
+    while true do 
         task.wait()
-    end
-end
 
-local farm = function(_,__)
-    local items = find(_)
-    local amount = count(_) == __
-
-    for ___, ____ in pairs(items["Position"]) do
-        if count(____) == __ or amount then
+        if tick() - newtick >= 0.1 and #Back:GetChildren() == oldval then
             break
-        else
-            get(items,___)
+        elseif #Back:GetChildren() ~= oldval then
+            oldval = #Back:GetChildren()
+            newtick = tick()
         end
     end
-    
-    return true
+
+    return
 end
 
-local Start = function(_,__)
-    farm(_,__)
-    Char.Humanoid:EquipTool(Back:FindFirstChild(_))
-    RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
-end
+local Count = function(_)
+    BackpackLoaded()
 
-task.wait(Data["Value"]["When?"])
-
-Start("Mysterious Arrow", 25)
-Start("Rokakaka", 25)
-Start("Diamond", 10)
-Start("Steel Ball", 10)
-Start("Quinton's Glove", 10)
-Start("Pure Rokakaka", 10)
-Start("Ribcage Of The Saint's Corpse", 10)
-Start("Ancient Scroll", 10)
-Teleport()
-
-Local.CharacterAdded:Connect(function()
-    task.wait(1)
-    for _,__ in pairs(Char:GetDescendants()) do
-        if __:IsA("BasePart") and __.CanCollide == true then
-            __.CanCollide = false
+    for z,__ in Back:GetChildren() do
+        if __.Name == _ then
+            Data["Value"]["Count"] = Data["Value"]["Count"] + 1
         end
     end
-end)
+
+    if Char and Char:FindFirstChildWhichIsA("Tool") and Char:FindFirstChildWhichIsA("Tool").Name == _ then
+        Data["Value"]["Count"] += 1
+    end
+
+    return Data["Value"]["Count"]
+end
+
+local IsMax = function(_) 
+    local Max = {
+        ["Diamond"] = 30,
+        ["Gold Coin"] = 45,
+        ["Mysterious Arrow"] = 25,
+        ["Pure Rokakaka"] = 10,
+        ["Rokakaka"] = 25,
+        ["Stone Mask"] = 10,
+        ["Rib Cage of The Saint's Corpse"] = 10,
+        ["Steel Ball"] = 10,
+        ["Ancient Scroll"] = 10,
+        ["Dio's Diary"] = 10,
+        ["Caesar's Headband"] = 10,
+        ["Red Candy"] = 50,
+        ["Blue Candy"] = 50,
+        ["Green Candy"] = 50,
+        ["Yellow Candy"] = 50,
+        ["Quinton's Glove"] = 10
+    }
+
+    return Count(_) >= Max[_]
+end
+
+local Find = function()
+    for z,__ in pairs(workspace.Item_Spawns.Items:GetChildren()) do
+        if not __:FindFirstChild("MeshPart") or not __:FindFirstChild("ProximityPrompt") then continue end
+        if __:FindFirstChild("ProximityPrompt").MaxActivationDistance ~= 8 then continue end 
+        if not table.find(getgenv().Items, __:FindFirstChild("ProximityPrompt").ObjectText) then continue end
+        return {
+            ["Text"] = __:FindFirstChild("ProximityPrompt").ObjectText,
+            ["ProximityPrompt"] = __:FindFirstChild("ProximityPrompt"),
+            ["CFrame"] = __:FindFirstChild("MeshPart").CFrame,
+            ["Instance"] = __
+        }
+    end
+end
+
+local ItemChecker = function()
+    for _,c in pairs(workspace.Item_Spawns.Items:GetChildren()) do
+        if not c:IsA("Model") then
+            Teleport()
+        end
+    end
+end
 
 hookfunction(workspace.Raycast, function()
     return
 end)
+
+if getgenv().AutoFarm then  
+    while getgenv().AutoFarm do
+        task.wait()
+        if not Find() then continue end
+        ITemChecker()
+        Data["Cache"]["Name"] = Find()["Text"]
+
+        if IsMax(Data["Cache"]["Name"]) then
+            Char.Humanoid:EquipTool(Back:FindFirstChild(Data["Cache"]["Name"]))
+            RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
+        end
+        
+        if not Find() then Farm(CFrame.new(math.random(-1000, 1000), 10, math.random(-1000, 1000))); continue end
+
+        Farm(Find().CFrame + Vector3.new(0, 10, 0))
+
+        if (HumanoidRootPart.Position - Find().CFrame.Position).Magnitude <= 8 then
+            task.wait(getgenv().PickupDelay)
+            fireproximityprompt(Find().ProximityPrompt)
+            task.wait(getgenv().PickupDelay)
+            Find().Instance:Destroy()
+        end
+    end
+else
+    Teleport()
+end
