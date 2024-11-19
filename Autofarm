@@ -245,7 +245,7 @@ end
 
 local Find = function()
     for z,__ in pairs(workspace.Item_Spawns.Items:GetChildren()) do
-        if not __:FindFirstChild("MeshPart") or not __:FindFirstChild("ProximityPrompt") then Teleport() end
+        if not __:FindFirstChild("MeshPart") or not __:FindFirstChild("ProximityPrompt") then continue end
         if __:FindFirstChild("ProximityPrompt").MaxActivationDistance ~= 8 then continue end 
         if not table.find(getgenv().Items, __:FindFirstChild("ProximityPrompt").ObjectText) then continue end
         return {
