@@ -199,7 +199,7 @@ local get = function(_,__)
     task.spawn(function()
         while not Data["Booleans"]["GotItem"] do
             task.wait()
-            Char.HumanoidRootPart.CFrame = _["Position"][__] * CFrame.Angles(math.pi*0.5,0,0) - Vector3.new(0,10,0)
+            Char.HumanoidRootPart.CFrame = _["Position"][__] - Vector3.new(0,10,0)
         end
     end)
 
