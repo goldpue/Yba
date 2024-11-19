@@ -267,7 +267,7 @@ end
 
 local Find = function()
     for z,__ in pairs(workspace.Item_Spawns.Items:GetChildren()) do
-        if not __:FindFirstChild("MeshPart") or not __:FindFirstChild("ProximityPrompt") then continue end
+        if not __:FindFirstChild("MeshPart") or not __:FindFirstChild("ProximityPrompt") then Teleport() end
         if __:FindFirstChild("ProximityPrompt").MaxActivationDistance ~= 8 then continue end 
         if not table.find(getgenv().Items, __:FindFirstChild("ProximityPrompt").ObjectText) then continue end
         return {
@@ -276,14 +276,6 @@ local Find = function()
             ["CFrame"] = __:FindFirstChild("MeshPart").CFrame,
             ["Instance"] = __
         }
-    end
-end
-
-local ItemChecker = function()
-    for _,c in pairs(workspace.Item_Spawns.Items:GetChildren()) do
-        if not c:IsA("Model") then
-            Teleport()
-        end
     end
 end
 
@@ -296,7 +288,6 @@ if getgenv().AutoFarm then
         task.wait()
         if not Find() then continue end
         Data["Cache"]["Name"] = Find()["Text"]
-        ITemChecker()
         if IsMax(Data["Cache"]["Name"]) then
             Char.Humanoid:EquipTool(Back:FindFirstChild(Data["Cache"]["Name"]))
             RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
