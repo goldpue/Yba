@@ -1,25 +1,3 @@
-getgenv().Items = {
-    "Diamond",
-    "Gold Coin",
-    "Mysterious Arrow",
-    "Pure Rokakaka",
-    "Rokakaka",
-    "Stone Mask",
-    "Rib Cage of The Saint's Corpse",
-    "Steel Ball",
-    "Ancient Scroll",
-    "Dio's Diary",
-    "Caesar's Headband",
-    "Quinton's Glove"
-    --Dont add lucky arrow
-}
-
-getgenv().AutoFarm = true
-getgenv().PickupDelay = 1
-getgenv().MaxTeleportDistance = 45
-getgenv().TeleportSpeed = 9
-getgenv().Webhook = "https://discord.com/api/webhooks/1307992854051815426/Xku5bvRsM1SArQB8i2pT1gFYdSjWlAhhmX1M12o_Ap1j5aP2t1thBjaBguolzXp_uwI4"
-
 local Player = game:GetService("Players")
 local Local = Player.LocalPlayer
 local Char = Local.Character
