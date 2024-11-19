@@ -1,3 +1,16 @@
+if game.PlaceId ~= 2809202155 then
+    local Folder = Instance.new("Folder", workspace)
+    Folder.Name = "Item_Spawns"
+    local Folder2 = Instance.new("Folder", Folder)
+    Folder2.Name = "Items"
+end
+
+for _,zzz in workspace.Map:GetChildren() do
+    task.spawn(function()
+        zzz.Parent = Instance.new("Folder", workspace)
+    end)
+end
+
 local Player = game:GetService("Players")
 local Local = Player.LocalPlayer
 local Char = Local.Character
@@ -165,7 +178,7 @@ local Farm = function(bod)
         if not Data["Cache"]["CFrame"] then return end
 
         for _, v in pairs(Char:GetDescendants()) do
-            if v:IsA("BasePart") and v.CanCollide then
+            if v:IsA("BasePart") and v:IsA("UnionOperation") then
                 v.CanCollide = false
             end
         end
