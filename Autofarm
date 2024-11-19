@@ -295,9 +295,8 @@ if getgenv().AutoFarm then
     while getgenv().AutoFarm do
         task.wait()
         if not Find() then continue end
-        ITemChecker()
         Data["Cache"]["Name"] = Find()["Text"]
-
+        ITemChecker()
         if IsMax(Data["Cache"]["Name"]) then
             Char.Humanoid:EquipTool(Back:FindFirstChild(Data["Cache"]["Name"]))
             RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
