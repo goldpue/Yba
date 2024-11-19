@@ -5,9 +5,10 @@ if game.PlaceId ~= 2809202155 then
     Folder2.Name = "Items"
 end
 
-for _,zzz in workspace.Map:GetChildren() do
+local MapFolder = Instance.new("Folder", workspace)
+for _,zz in workspace.Map:GetChildren() do
     task.spawn(function()
-        zzz.Parent = Instance.new("Folder", workspace)
+        zz.Parent = MapFolder
     end)
 end
 
