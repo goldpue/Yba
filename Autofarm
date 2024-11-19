@@ -28,7 +28,7 @@ workspace.Map.IMPORTANT.OceanFloor.OceanFloor_Sand_4.Size = Vector3.new(2048, 89
 local Data = {
     ["data"] = {
         ["Time"] = tick(),
-        ["Money"] = math.floor(Local.PlayerStats.Money.Value),
+        ["Money"] = Local.PlayerStats.Money.Value,
     },
     ["Connection"] = {
         ["Hook"] = nil,
@@ -94,7 +94,7 @@ Data["Connection"]["Hook"] = hookmetamethod(game, '__namecall', newcclosure(func
     return Data["Connection"]["Hook"](self,...)
 end))
 Notify:SendNotification("Success", "Bypassed Hook", 1)
-SendWebhook("Loading - Auto Money Farm {By Seth}\nCurrent Money: `"..Data["data"]["Money"].."`\nTime Since Start: `" .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes`")
+SendWebhook("Loading - Auto Money Farm {By Seth}\nCurrent Money: `"..math.floor(Data["data"]["Money"]).."`\nTime Since Start: `" .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes`")
 local PlaceID = game.PlaceId
 local AllIDs = {}
 local foundAnything = ""
@@ -148,7 +148,7 @@ local function TPReturner()
  end
 
 local function Teleport()
-    SendWebhook("Time: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nCurrent Money: " .. Data["data"]["Money"])
+   SendWebhook("Time: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nCurrent Money: " .. math.floor(Data["data"]["Money"]))
    while task.wait() do
       pcall(function()
        if getgenv().Lessping then
