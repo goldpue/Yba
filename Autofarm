@@ -167,7 +167,7 @@ local Teleport = function()
 end
 
 local find = function(_)
-    for _,__ in pairs(game:GetService("Workspace")["Item_Spawns"].Items:GetChildren()) do
+    for ___,__ in pairs(game:GetService("Workspace")["Item_Spawns"].Items:GetChildren()) do
         if __:FindFirstChild("MeshPart") and __.ProximityPrompt.ObjectText == _ then
             if __.ProximityPrompt.MaxActivationDistance == 8 then
                 table.insert(Data["Cache"]["Items"], __.ProximityPrompt.ObjectText)
@@ -182,7 +182,7 @@ local find = function(_)
 end
 
 local count = function(_)
-    for _,__ in pairs(Back:GetChildren()) do
+    for ___,__ in pairs(Back:GetChildren()) do
         if __.Name == _ then
             Data["Value"]["Collect"] += 1;
         end
@@ -203,7 +203,7 @@ local get = function(_,__)
         end
     end)
 
-    task.wait(getgenv().WaitTilCollect)
+    task.wait(Data["Env"]["Timeout"])
 
     task.spawn(function()
         fireproximityprompt(_["ProximityPrompt"][__])
@@ -245,8 +245,8 @@ local farm = function(_,__)
     local items = find(_)
     local amount = count(_) == __
 
-    for ___, _ in pairs(items["Position"]) do
-        if count(_) == __ or amount then
+    for ___, ____ in pairs(items["Position"]) do
+        if count(____) == __ or amount then
             break
         else
             get(items,___)
@@ -256,12 +256,11 @@ local farm = function(_,__)
     return true
 end
 
+
 local Start = function(_,__)
-    if count(_) <= __ then
-        farm(_,__)
-        Char.Humanoid:EquipTool(Back:FindFirstChild(_))
-        RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
-    end
+    farm(_,__)
+    Char.Humanoid:EquipTool(Back:FindFirstChild(_))
+    RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
 end
 
 task.wait(Data["Value"]["When?"])
