@@ -256,7 +256,6 @@ local farm = function(_,__)
     return true
 end
 
-
 local Start = function(_,__)
     farm(_,__)
     Char.Humanoid:EquipTool(Back:FindFirstChild(_))
@@ -274,3 +273,16 @@ Start("Pure Rokakaka", 10)
 Start("Ribcage Of The Saint's Corpse", 10)
 Start("Ancient Scroll", 10)
 Teleport()
+
+Local.CharacterAdded:Connect(function()
+    task.wait(1)
+    for _,__ in pairs(Char:GetDescendants()) do
+        if __:IsA("BasePart") and __.CanCollide == true then
+            __.CanCollide = false
+        end
+    end
+end)
+
+hookfunction(workspace.Raycast, function()
+    return
+end)
