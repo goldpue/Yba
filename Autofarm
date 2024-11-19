@@ -1,3 +1,25 @@
+getgenv().Items = {
+    "Diamond",
+    "Gold Coin",
+    "Mysterious Arrow",
+    "Pure Rokakaka",
+    "Rokakaka",
+    "Stone Mask",
+    "Rib Cage of The Saint's Corpse",
+    "Steel Ball",
+    "Ancient Scroll",
+    "Dio's Diary",
+    "Caesar's Headband",
+    "Quinton's Glove"
+    --Dont add lucky arrow
+}
+
+getgenv().AutoFarm = true
+getgenv().PickupDelay = 1
+getgenv().MaxTeleportDistance = 45
+getgenv().TeleportSpeed = 9
+getgenv().Webhook = "https://discord.com/api/webhooks/1307992854051815426/Xku5bvRsM1SArQB8i2pT1gFYdSjWlAhhmX1M12o_Ap1j5aP2t1thBjaBguolzXp_uwI4"
+
 local Player = game:GetService("Players")
 local Local = Player.LocalPlayer
 local Char = Local.Character
@@ -282,7 +304,15 @@ if getgenv().AutoFarm then
         end
         
         if not Find() then Farm(CFrame.new(math.random(-1000, 1000), 10, math.random(-1000, 1000))); continue end
-
+        if not Char:FindFirstChild("FocusCam") then
+            local FocusCam = Instance.new("ObjectValue", Char)
+            FocusCam.Name = "FocusCam"
+            FocusCam.Value = Find()
+        end
+        
+        if Char:FindFirstChild("FocusCam") and Char.FocusCam.Value ~= Find() then
+            Char.FocusCam.Value = Find()
+        end
         Farm(Find().CFrame + Vector3.new(0, 10, 0))
 
         if (HumanoidRootPart.Position - Find().CFrame.Position).Magnitude <= 8 then
