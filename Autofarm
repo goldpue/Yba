@@ -293,16 +293,7 @@ if getgenv().AutoFarm then
             RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
         end
         
-        if not Find() then Farm(CFrame.new(math.random(-1000, 1000), 10, math.random(-1000, 1000))); continue end
-        if not Char:FindFirstChild("FocusCam") then
-            local FocusCam = Instance.new("ObjectValue", Char)
-            FocusCam.Name = "FocusCam"
-            FocusCam.Value = Find()
-        end
-        
-        if Char:FindFirstChild("FocusCam") and Char.FocusCam.Value ~= Find() then
-            Char.FocusCam.Value = Find()
-        end
+        if not Find() then Farm(CFrame.new(math.random(-1000, 1000), 0, math.random(-1000, 1000))); continue end
         Farm(Find().CFrame + Vector3.new(0, 10, 0))
 
         if (HumanoidRootPart.Position - Find().CFrame.Position).Magnitude <= 8 then
