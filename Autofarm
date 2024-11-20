@@ -9,6 +9,7 @@ game:GetService("CoreGui").DescendantAdded:Connect(function(child)
     end
 end)
 
+task.wait(5)
 local Player = game:GetService("Players")
 local Local = Player.LocalPlayer
 local Char = Local.Character
