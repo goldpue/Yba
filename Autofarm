@@ -35,6 +35,7 @@ local Data = {
     ["Cache"] = {
         ["CFrame"] = nil,
         ["Loop"] = nil,
+        ["Name"] = nil,
     },
     ["Value"] = {
         ["Count"] = 0
@@ -90,7 +91,7 @@ local PlaceID = game.PlaceId
 local AllIDs = {}
 local foundAnything = ""
 local actualHour = os.date("!*t").hour
-local TPReturner = function()
+local function TPReturner()
     local Site;
     if foundAnything == "" then
        Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=' .. getgenv().Sort .. '&limit=100'))
@@ -116,7 +117,7 @@ local TPReturner = function()
              else
                 if tonumber(actualHour) ~= tonumber(Existing) then
                    local delFile = pcall(function()
-                   delfile("Blocker.json")
+                   delfile("ServerBlocker.json")
                    AllIDs = {}
                    table.insert(AllIDs, actualHour)
                    end)
@@ -128,9 +129,9 @@ local TPReturner = function()
              table.insert(AllIDs, ID)
              task.wait()
              pcall(function()
-                writefile("Blocker.json", game:GetService('HttpService'):JSONEncode(AllIDs))
+                writefile("ServerBlocker.json", game:GetService('HttpService'):JSONEncode(AllIDs))
                 task.wait()
-                game:GetService("TeleportService"):FarmInstance(PlaceID, ID, game.Players.LocalPlayer)
+                game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
              end)
              task.wait(4)
           end
@@ -138,16 +139,16 @@ local TPReturner = function()
     end
  end
 
-local Teleport = function()
-   SendWebhook("Hopped to new server: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nNew Current Money: " .. math.floor(Data["data"]["Money"]) .. "\nPlayer Name: `" .. game.Players.LocalPlayer.Name .. "`")
+local function Teleport()
    while task.wait() do
       pcall(function()
        if getgenv().Lessping then
-        game:GetService("TeleportService"):Teleport(2809202155, game:GetService("Players").LocalPlayer)
-        
-        game:GetService("TeleportService").TeleportInitFailed:Connect(function()
-            game:GetService("TeleportService"):Teleport(2809202155, game:GetService("Players").LocalPlayer)
-        end)
+           game:GetService("TeleportService"):Teleport(2809202155, game:GetService("Players").LocalPlayer)
+    
+           game:GetService("TeleportService").TeleportInitFailed:Connect(function()
+                game:GetService("TeleportService"):Teleport(2809202155, game:GetService("Players").LocalPlayer)
+           end)
+           
            repeat task.wait() until game.JobId ~= game.JobId
        end
       TPReturner()
@@ -224,7 +225,7 @@ local Count = function(_)
     return Data["Value"]["Count"]
 end
 
-local IsMax = function(Item) 
+local IsMax = function(_) 
     local Max = {
         ["Diamond"] = 30,
         ["Gold Coin"] = 45,
@@ -244,12 +245,14 @@ local IsMax = function(Item)
         ["Quinton's Glove"] = 10
     }
 
-    return Count(Item) >= Max[Item]
+    return Count(_) >= Max[_]
 end
 
 local Find = function()
     for z,__ in pairs(workspace.Item_Spawns.Items:GetChildren()) do
+        if not __:FindFirstChild("MeshPart") or not __:FindFirstChild("ProximityPrompt") then continue end
         if __:FindFirstChild("ProximityPrompt").MaxActivationDistance ~= 8 then continue end 
+        if not table.find(getgenv().Items, __:FindFirstChild("ProximityPrompt").ObjectText) then SendWebhook("Hopping to new server: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nNew Current Money: " .. math.floor(Data["data"]["Money"]) .. "\nPlayer Name: `" .. game.Players.LocalPlayer.Name .. "`") task.wait(.5) Teleport() end
         return {
             ["Text"] = __:FindFirstChild("ProximityPrompt").ObjectText,
             ["ProximityPrompt"] = __:FindFirstChild("ProximityPrompt"),
@@ -266,23 +269,20 @@ if getgenv().AutoFarm then
     while getgenv().AutoFarm do
         task.wait()
         local timeout = getgenv().WaitTilCollect + 5
-        local found = Find()
-        local itemnil = nil
-        if not found then continue end
-        itemnil = found["Text"]
-        if IsMax(itemnil) then
-            Char.Humanoid:EquipTool(Back:FindFirstChild(itemnil))
-            RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant", ["Dialogue"] = "Dialogue5", ["Option"] = "Option2"})
+        if not Find() then continue end
+        Data["Cache"]["Name"] = Find().Text
+        if IsMax(Data["Cache"]["Name"]) then
+            Char.Humanoid:EquipTool(Back:FindFirstChild(Data["Cache"]["Name"]))
+            RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
         end
         
-        Farm(found.CFrame)
+        Farm(Find().CFrame)
         task.wait(getgenv().WaitTilCollect)
 
-        if (HumanoidRootPart.Position - found.CFrame.Position).Magnitude <= 10 then
+        if (HumanoidRootPart.Position - Find().CFrame.Position).Magnitude <= 10 then
             task.wait(getgenv().PickupDelay)
-            fireproximityprompt(found.ProximityPrompt)
+            fireproximityprompt(Find().ProximityPrompt)
             task.wait(getgenv().PickupDelay)
-            BodyVelocity:Destroy()
         end
         task.spawn(function()
             for i=timeout, 1, -1 do
