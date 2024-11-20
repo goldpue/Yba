@@ -9,7 +9,6 @@ local Mag;
 local Hook;
 repeat task.wait() until Char:FindFirstChild("RemoteEvent") and Char:FindFirstChild("RemoteFunction")
 Char:FindFirstChild("RemoteEvent"):FireServer("PressedPlay")
-local Notify = loadstring(game:HttpGet("https://raw.githubusercontent.com/IceMinisterq/Notification-Library/Main/Library.lua"))()
 for _,__ in ipairs({"LoadingScreen1", "LoadingScreen"}) do
     if Gui:FindFirstChild(__) then
         Gui:FindFirstChild(__):Destroy()
@@ -48,7 +47,7 @@ local SendWebhook = function(msg)
     local data = {
         embeds = {
             {
-                title = "Testing Webhook {Seth}",
+                title = "Money Farm",
                 description = msg,
                 type = "rich",
                 color = 0x7269ff
@@ -85,8 +84,8 @@ Hook = hookmetamethod(game, '__namecall', newcclosure(function(self, ...)
     return Hook(self, ...)
 end))
 
-Notify:SendNotification("Success", "Bypassed Hook", 1)
-SendWebhook("Loading - Auto Money Farm {By Seth}\nCurrent Money: `"..math.floor(Data["data"]["Money"]).."`\nTime Since Start: `" .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes`")
+print("Hook Bypassed")
+SendWebhook("Loading - Auto Money Farm \nCurrent Money: `"..math.floor(Data["data"]["Money"]).."`\nTime Since Start: `" .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes`\nPlayer Name: `" .. game.Players.LocalPlayer.Name .. "`")
 
 local PlaceID = game.PlaceId
 local AllIDs = {}
@@ -141,7 +140,7 @@ local TPReturner = function()
  end
 
 local Teleport = function()
-   SendWebhook("Time: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nCurrent Money: " .. math.floor(Data["data"]["Money"]))
+    SendWebhook("Hopped to new server: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nNew Current Money: " .. math.floor(Data["data"]["Money"]) .. "\nPlayer Name: `" .. game.Players.LocalPlayer.Name .. "`")
    while task.wait() do
       pcall(function()
        if getgenv().Lessping then
@@ -173,10 +172,16 @@ local Farm = function(bod)
         HumanoidRootPart.CFrame = Data["Cache"]["CFrame"]
     end)
 
-    while (bod.Position - HumanoidRootPart.Position).Magnitude > getgenv().MaxTeleportDistance do
-        HumanoidRootPart.Position = HumanoidRootPart.Position + (bod.Position - HumanoidRootPart.Position).Unit * getgenv().MaxTeleportDistance
-        Data["Cache"]["CFrame"] = CFrame.new(HumanoidRootPart.Position)
-        task.wait(10 / (getgenv().TeleportSpeed * 10))
+    local BodyVelocity = Instance.new("BodyVelocity")
+    BodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    BodyVelocity.Parent = HumanoidRootPart
+
+
+    while (bod.Position - HumanoidRootPart.Position).Magnitude > 0.1 do
+        task.wait()
+        HumanoidRootPart.CFrame = CFrame.new(bod.Position)
+        Data["Cache"]["CFrame"] = bod
     end
 
     Data["Cache"]["CFrame"] = bod
@@ -247,12 +252,11 @@ local Find = function()
     for z,__ in pairs(workspace.Item_Spawns.Items:GetChildren()) do
         if not __:FindFirstChild("MeshPart") or not __:FindFirstChild("ProximityPrompt") then continue end
         if __:FindFirstChild("ProximityPrompt").MaxActivationDistance ~= 8 then continue end 
-        if not table.find(getgenv().Items, __:FindFirstChild("ProximityPrompt").ObjectText) then continue end
+        if not table.find(getgenv().Items, __:FindFirstChild("ProximityPrompt").ObjectText) then Teleport() end
         return {
             ["Text"] = __:FindFirstChild("ProximityPrompt").ObjectText,
             ["ProximityPrompt"] = __:FindFirstChild("ProximityPrompt"),
-            ["CFrame"] = __:FindFirstChild("MeshPart").CFrame,
-            ["Instance"] = __
+            ["CFrame"] = __:FindFirstChild("MeshPart").CFrame
         }
     end
 end
@@ -264,23 +268,26 @@ end)
 if getgenv().AutoFarm then  
     while getgenv().AutoFarm do
         task.wait()
+        local timeout = getgenv().WaitTilCollect + 5
         if not Find() then continue end
-        Data["Cache"]["Name"] = Find()["Text"]
+        Data["Cache"]["Name"] = Find().Text
         if IsMax(Data["Cache"]["Name"]) then
             Char.Humanoid:EquipTool(Back:FindFirstChild(Data["Cache"]["Name"]))
             RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
         end
         
-        if not Find() then Farm(CFrame.new(math.random(-1000, 1000), 0, math.random(-1000, 1000))); continue end
-        Farm(Find().CFrame + Vector3.new(0, 10, 0))
+        Farm(Find().CFrame * CFrame.Angles(math.pi*0.5,0,0))
+        task.wait(getgenv().WaitTilCollect)
 
-        if (HumanoidRootPart.Position - Find().CFrame.Position).Magnitude <= 8 then
+        if (HumanoidRootPart.Position - Find().CFrame.Position).Magnitude <= 10 then
             task.wait(getgenv().PickupDelay)
             fireproximityprompt(Find().ProximityPrompt)
             task.wait(getgenv().PickupDelay)
-            Find().Instance:Destroy()
         end
+        task.spawn(function()
+            for i=timeout, 1, -1 do
+                task.wait(1)
+            end
+        end)
     end
-else
-    Teleport()
 end
