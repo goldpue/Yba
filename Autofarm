@@ -96,7 +96,7 @@ Hook = hookmetamethod(game, '__namecall', newcclosure(function(self, ...)
 end))
 
 print("Hook Bypassed")
-SendWebhook("Loading - Auto Money Farm \nCurrent Money: `"..math.floor(Data["data"]["Money"]).."`\nTime Since Start: `" .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes`\nPlayer Name: `" .. game.Players.LocalPlayer.Name .. "`")
+SendWebhook("Loading - Auto Money Farm \nCurrent Money: `"..math.floor(Data["data"]["Money"]).."`\nPlayer Name: `" .. game.Players.LocalPlayer.Name .. "`")
 
 local PlaceID = game.PlaceId
 local AllIDs = {}
@@ -263,7 +263,7 @@ local Find = function()
     for z,__ in pairs(workspace.Item_Spawns.Items:GetChildren()) do
         if not __:FindFirstChild("MeshPart") or not __:FindFirstChild("ProximityPrompt") then continue end
         if __:FindFirstChild("ProximityPrompt").MaxActivationDistance ~= 8 then continue end 
-        if not table.find(getgenv().Items, __:FindFirstChild("ProximityPrompt").ObjectText) then SendWebhook("Hopping to new server: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nNew Current Money: " .. math.floor(Data["data"]["Money"]) .. "\nPlayer Name: `" .. game.Players.LocalPlayer.Name .. "`") task.wait(.5) Teleport() end
+        if not table.find(getgenv().Items, __:FindFirstChild("ProximityPrompt").ObjectText) then SendWebhook("Hopping to new server: " .. math.floor((os.time() - Data["data"]["Time"]) / 60) .. " minutes\nNew Current Money: " .. math.floor(Data["data"]["Money"]) .. "\nPlayer Name: `" .. game.Players.LocalPlayer.Name .. "`") task.wait(.5) Teleport() end
         return {
             ["Text"] = __:FindFirstChild("ProximityPrompt").ObjectText,
             ["ProximityPrompt"] = __:FindFirstChild("ProximityPrompt"),
