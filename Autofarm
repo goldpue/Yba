@@ -35,7 +35,6 @@ local Data = {
     ["Cache"] = {
         ["CFrame"] = nil,
         ["Loop"] = nil,
-        ["Name"] = nil,
     },
     ["Value"] = {
         ["Count"] = 0
@@ -140,7 +139,7 @@ local TPReturner = function()
  end
 
 local Teleport = function()
-    SendWebhook("Hopped to new server: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nNew Current Money: " .. math.floor(Data["data"]["Money"]) .. "\nPlayer Name: `" .. game.Players.LocalPlayer.Name .. "`")
+   SendWebhook("Hopped to new server: " .. math.floor((tick() - Data["data"]["Time"]) / 60) .. " minutes\nNew Current Money: " .. math.floor(Data["data"]["Money"]) .. "\nPlayer Name: `" .. game.Players.LocalPlayer.Name .. "`")
    while task.wait() do
       pcall(function()
        if getgenv().Lessping then
@@ -225,7 +224,7 @@ local Count = function(_)
     return Data["Value"]["Count"]
 end
 
-local IsMax = function(_) 
+local IsMax = function(Item) 
     local Max = {
         ["Diamond"] = 30,
         ["Gold Coin"] = 45,
@@ -245,14 +244,12 @@ local IsMax = function(_)
         ["Quinton's Glove"] = 10
     }
 
-    return Count(_) >= Max[_]
+    return Count(Item) >= Max[Item]
 end
 
 local Find = function()
     for z,__ in pairs(workspace.Item_Spawns.Items:GetChildren()) do
-        if not __:FindFirstChild("MeshPart") or not __:FindFirstChild("ProximityPrompt") then continue end
         if __:FindFirstChild("ProximityPrompt").MaxActivationDistance ~= 8 then continue end 
-        if not table.find(getgenv().Items, __:FindFirstChild("ProximityPrompt").ObjectText) then Teleport() end
         return {
             ["Text"] = __:FindFirstChild("ProximityPrompt").ObjectText,
             ["ProximityPrompt"] = __:FindFirstChild("ProximityPrompt"),
@@ -269,20 +266,23 @@ if getgenv().AutoFarm then
     while getgenv().AutoFarm do
         task.wait()
         local timeout = getgenv().WaitTilCollect + 5
-        if not Find() then continue end
-        Data["Cache"]["Name"] = Find().Text
-        if IsMax(Data["Cache"]["Name"]) then
-            Char.Humanoid:EquipTool(Back:FindFirstChild(Data["Cache"]["Name"]))
-            RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant",["Dialogue"] = "Dialogue5",["Option"] = "Option2"})
+        local found = Find()
+        local itemnil = nil
+        if not found then continue end
+        itemnil = found["Text"]
+        if IsMax(itemnil) then
+            Char.Humanoid:EquipTool(Back:FindFirstChild(itemnil))
+            RemoteEvent:FireServer("EndDialogue", {["NPC"] = "Merchant", ["Dialogue"] = "Dialogue5", ["Option"] = "Option2"})
         end
         
-        Farm(Find().CFrame * CFrame.Angles(math.pi*0.5,0,0))
+        Farm(found.CFrame)
         task.wait(getgenv().WaitTilCollect)
 
-        if (HumanoidRootPart.Position - Find().CFrame.Position).Magnitude <= 10 then
+        if (HumanoidRootPart.Position - found.CFrame.Position).Magnitude <= 10 then
             task.wait(getgenv().PickupDelay)
-            fireproximityprompt(Find().ProximityPrompt)
+            fireproximityprompt(found.ProximityPrompt)
             task.wait(getgenv().PickupDelay)
+            BodyVelocity:Destroy()
         end
         task.spawn(function()
             for i=timeout, 1, -1 do
