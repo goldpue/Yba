@@ -97,8 +97,6 @@ Hook = hookmetamethod(game, '__namecall', newcclosure(function(self, ...)
 end))
 
 print("Hook Bypassed")
-SendWebhook("Loading - Auto Money Farm \nCurrent Money: `"..math.floor(Data["data"]["Money"]).."`\nPlayer Name: `" .. game.Players.LocalPlayer.Name .. "`")
-
 local PlaceID = game.PlaceId
 local AllIDs = {}
 local foundAnything = ""
